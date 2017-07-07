@@ -15,8 +15,6 @@ pub struct TransformSystem {
     /// Vec of entities with parents before children. Only contains entities
     /// with parents.
     sorted: Vec<(Entity, Entity)>,
-    /// New entities in the current update.
-    new: Vec<Entity>,
     /// Entities that have been removed in current frame.
     dead: HashSet<Entity>,
     /// Child entities that were dirty.
@@ -31,7 +29,6 @@ impl TransformSystem {
         TransformSystem {
             indices: HashMap::default(),
             sorted: Vec::new(),
-            new: Vec::new(),
             dead: HashSet::default(),
             dirty: HashSet::default(),
             swapped: HashSet::default(),
@@ -43,13 +40,12 @@ impl<'a> System<'a> for TransformSystem {
     type SystemData = (Entities<'a>, ReadStorage<'a, LocalTransform>, ReadStorage<'a, Child>, WriteStorage<'a, Init>, WriteStorage<'a, Transform>);
 
     fn run(&mut self, (entities, locals, children, mut init, mut globals): Self::SystemData) {
-       
         // Checks for entities with a local transform and parent, but no
         // `Init` component.
-        for (entity, _, child, _) in (&*entities, &locals, &children, !&init).join() {
+        for (entity, _, child, _) in (&*entities, &locals, &children, !&init.check()).join() {
             self.indices.insert(entity, self.sorted.len());
             self.sorted.push((entity, child.parent()));
-            self.new.push(entity);
+            init.insert(entity, Init);
         }
 
         // Deletes entities whose parents aren't alive.
@@ -62,19 +58,13 @@ impl<'a> System<'a> for TransformSystem {
             }
         }
 
-        // Adds an `Init` component to the entity.
-        for entity in self.new.drain(..) {
-            init.insert(entity, Init);
-        }
-
         {
             // Compute transforms without parents.
-            for (ent, local, global, _) in (&*entities, &locals, &mut globals, !&children).join() {
-                if local.is_dirty() {
-                    self.dirty.insert(ent);
-                    global.0 = local.matrix();
-                    local.flag(false);
-                }
+            let flagged = locals.open().1;
+            for (entity, local, global, _) in (&*entities, &flagged, &mut globals, !&children.check()).join() {
+                self.dirty.insert(entity);
+                global.0 = local.matrix();
+                flagged.unflag(entity);
             }
         }
 
@@ -82,11 +72,13 @@ impl<'a> System<'a> for TransformSystem {
         let mut index = 0;
         while index < self.sorted.len() {
             let (entity, parent_entity) = self.sorted[index];
+            let child_dirty = children.open().0.flagged(entity);
+            let local_dirty = locals.open().0.flagged(entity);
 
             match (children.get(entity), locals.get(entity), self.dead.contains(&entity)) {
                 (Some(child), Some(local), false) => {
                     // Make sure the transform is also dirty if the parent has changed.
-                    if child.is_dirty() && !self.swapped.contains(&entity) {
+                    if child_dirty && !self.swapped.contains(&entity) {
                         if child.parent() != parent_entity {
                             self.sorted[index] = (entity, child.parent());
                         }
@@ -112,7 +104,7 @@ impl<'a> System<'a> for TransformSystem {
                         }
                     }
 
-                    if local.is_dirty() || child.is_dirty() ||
+                    if local_dirty || child_dirty ||
                        self.dirty.contains(&child.parent()) {
                         let combined_transform = if let Some(parent_global) =
                             globals.get(child.parent()) {
@@ -150,7 +142,9 @@ impl<'a> System<'a> for TransformSystem {
 
             index += 1;
         }
-
+        
+        children.open().0.clear_flags();
+        locals.open().0.clear_flags();
         self.dirty.clear();
         self.dead.clear();
         self.swapped.clear();
