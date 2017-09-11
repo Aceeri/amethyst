@@ -42,8 +42,7 @@ impl<'a, 'b, 'c, T> ECSBundle<'a, 'b, T> for TransformBundle<'c> {
     ) -> Result<ApplicationBuilder<'a, 'b, T>> {
         Ok(
             builder
-                .register::<Init>()
-                .register::<Child>()
+                .register::<Parent>()
                 .register::<LocalTransform>()
                 .register::<Transform>()
                 .with(TransformSystem::new(), "transform_system", self.dep),

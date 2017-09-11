@@ -1,12 +1,8 @@
 //! Global transform component.
 
-<<<<<<< HEAD
 use std::borrow::Borrow;
 
-use ecs::{Component, FlaggedStorage, VecStorage};
-=======
 use ecs::{Component, DenseVecStorage, FlaggedStorage};
->>>>>>> 2ea68cf... Change Child -> Parent, remove Init component, unwrap transform and use FlaggedStorage instead.
 
 /// Performs a global transformation on the entity (transform from origin).
 ///
@@ -19,11 +15,7 @@ use ecs::{Component, DenseVecStorage, FlaggedStorage};
 pub struct Transform(pub [[f32; 4]; 4]);
 
 impl Component for Transform {
-<<<<<<< HEAD
-    type Storage = FlaggedStorage<Transform, VecStorage<Transform>>;
-=======
     type Storage = FlaggedStorage<Self, DenseVecStorage<Self>>;
->>>>>>> 2ea68cf... Change Child -> Parent, remove Init component, unwrap transform and use FlaggedStorage instead.
 }
 
 impl Default for Transform {

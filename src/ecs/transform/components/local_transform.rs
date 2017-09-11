@@ -1,13 +1,6 @@
 //! Local transform component.
 
-<<<<<<< HEAD
-use std::ops::{Deref, DerefMut};
-use std::sync::atomic::{AtomicBool, Ordering};
-
-use cgmath::{Matrix3, Matrix4, Quaternion, Vector3};
-=======
 use cgmath::{Quaternion, Vector3, Matrix3, Matrix4};
->>>>>>> 2ea68cf... Change Child -> Parent, remove Init component, unwrap transform and use FlaggedStorage instead.
 
 use ecs::{Component, DenseVecStorage, FlaggedStorage};
 
