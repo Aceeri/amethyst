@@ -382,7 +382,7 @@ impl<'a, 'b, T> ApplicationBuilder<'a, 'b, T> {
     ///
     /// ~~~no_run
     /// use amethyst::prelude::*;
-    /// use amethyst::ecs::transform::{Child, LocalTransform, TransformSystem};
+    /// use amethyst::ecs::transform::{Parent, LocalTransform, TransformSystem};
     ///
     /// struct NullState;
     /// impl State for NullState {}

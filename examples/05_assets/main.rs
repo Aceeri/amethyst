@@ -13,8 +13,8 @@ use amethyst::config::Config;
 use amethyst::ecs::World;
 use amethyst::ecs::input::InputBundle;
 use amethyst::ecs::rendering::{AmbientColor, Factory, LightComponent, MaterialComponent,
-                               MeshComponent, MeshContext, RenderBundle, TextureComponent,
-                               TextureContext};
+MeshComponent, MeshContext, RenderBundle, TextureComponent,
+TextureContext};
 use amethyst::ecs::transform::{LocalTransform, Transform, TransformBundle};
 use amethyst::prelude::*;
 use amethyst::renderer::{Camera, Config as DisplayConfig, Rgba};
@@ -144,18 +144,18 @@ impl State for AssetsExample {
             Event::WindowEvent { event, .. } => {
                 match event {
                     WindowEvent::Closed |
-                    WindowEvent::KeyboardInput {
-                        input:
-                            KeyboardInput {
-                                virtual_keycode: Some(VirtualKeyCode::Escape),
+                        WindowEvent::KeyboardInput {
+                            input:
+                                KeyboardInput {
+                                    virtual_keycode: Some(VirtualKeyCode::Escape),
+                                    ..
+                                },
                                 ..
-                            },
-                        ..
-                    } => {
-                        // If the user pressed the escape key, or requested the window to be closed,
-                        // quit the application.
-                        Trans::Quit
-                    }
+                        } => {
+                            // If the user pressed the escape key, or requested the window to be closed,
+                            // quit the application.
+                            Trans::Quit
+                        }
                     _ => Trans::None,
                 }
             }
@@ -173,12 +173,12 @@ fn main() {
 }
 
 type DrawShaded = pass::DrawShaded<
-    PosNormTex,
-    AmbientColor,
-    MeshComponent,
-    MaterialComponent,
-    Transform,
-    LightComponent,
+PosNormTex,
+AmbientColor,
+MeshComponent,
+MaterialComponent,
+Transform,
+LightComponent,
 >;
 
 /// Wrapper around the main, so we can return errors easily.

@@ -70,6 +70,7 @@ extern crate derivative;
 extern crate fnv;
 extern crate futures;
 extern crate gfx;
+extern crate hibitset;
 extern crate imagefmt;
 extern crate rayon;
 extern crate rodio;
