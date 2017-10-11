@@ -26,7 +26,7 @@ amethyst_assets = { path = "amethyst_assets", version = "0.1.0" }
 amethyst_config = { path = "amethyst_config", version = "0.4.0" }
 amethyst_renderer = { path = "amethyst_renderer", version = "0.5" }
 amethyst_input = { path = "amethyst_input", version = "0.1" }
-cgmath = "0.14"
+cgmath = { version = "0.15", features = ["mint"] }
 cpal = "0.4"
 crossbeam = "0.3"
 derivative = "1.0"
@@ -36,6 +36,7 @@ gfx = "0.16"
 genmesh = "0.4"
 hibitset = "0.3.1"
 imagefmt = "4.0"
+mint = { path = "../mint" }
 shred = "0.5"
 shrev = "0.5"
 rayon = "0.8"
@@ -47,6 +48,9 @@ winit = "0.7"
 serde = "1"
 
 thread_profiler = { version = "0.1", optional = true }
+
+[dev-dependencies]
+quickcheck = "0.4.1"
 
 [dependencies.smallvec]
 version = "0.4.2"

@@ -1,8 +1,7 @@
 //! Scene graph system and types
 
 use cgmath::Matrix4;
-use fnv::{FnvHashMap as HashMap, FnvHashSet as HashSet};
-use hibitset::{BitSet, BitSetNot};
+use fnv::{FnvHashMap as HashMap};
 
 use ecs::{Entities, Entity, Join, ReadStorage, System, WriteStorage};
 use ecs::transform::{LocalTransform, Transform, Parent};
@@ -15,12 +14,7 @@ pub struct TransformSystem {
     indices: HashMap<Entity, usize>,
     /// Vec of entities with parents before children. Only contains entities
     /// with parents.
-    //sorted: Vec<(Entity, Entity)>,
     sorted: Vec<Entity>,
-    /// Entities that have been removed in current frame.
-    dead: BitSet,
-    /// Prevent circular infinite loops with parents.
-    swapped: BitSet,
 }
 
 impl TransformSystem {
@@ -29,8 +23,6 @@ impl TransformSystem {
         TransformSystem {
             indices: HashMap::default(),
             sorted: Vec::new(),
-            dead: BitSet::default(),
-            swapped: BitSet::default(),
         }
     }
 }
@@ -48,12 +40,6 @@ impl<'a> System<'a> for TransformSystem {
 
         // Clear dirty flags on `Transform` storage, before updates go in
         (&mut globals).open().1.clear_flags();
-
-        println!("initial sorted: {:#?}", self.sorted);
-        println!("initial transforms: ");
-        for (entity, transform) in (&*entities, &globals).join() {
-            println!("{:?}: {:?}", entity, transform);
-        }
 
         // Checks for entities with a local transform and parent, but isn't initialized yet.
         for (entity, _, _) in (&*entities, &locals, &parents).join() {
@@ -74,7 +60,7 @@ impl<'a> System<'a> for TransformSystem {
 
             // Compute transforms without parents.
             for (entity, local, global, _) in (&*entities, locals_flagged, &mut globals, !&parents).join() {
-                global.0 = local.matrix();
+                *global = local.matrix();
             }
         }
 
@@ -88,9 +74,8 @@ impl<'a> System<'a> for TransformSystem {
             match (
                 parents.get(entity),
                 locals.get(entity),
-                self.dead.contains(entity.id()),
-                ) {
-                (Some(parent), Some(local), false) => {
+            ) {
+                (Some(parent), Some(local)) => {
                     // Make sure the transform is also dirty if the parent has changed.
                     if parent_dirty {
                         let mut swap = None;
@@ -117,18 +102,18 @@ impl<'a> System<'a> for TransformSystem {
                         let combined_transform = if let Some(parent_global) =
                             globals.get(parent.entity)
                         {
-                            (Matrix4::from(parent_global.0) * Matrix4::from(local.matrix())).into()
+                            (*parent_global.into() * local.matrix().into()).into()
                         } else {
                             local.matrix()
                         };
 
                         if let Some(global) = globals.get_mut(entity) {
-                            global.0 = combined_transform;
+                            *global = combined_transform.into();
                         }
                     }
                 }
-                _ => {
-                    self.sorted.swap_remove(index); // swap with last to prevent shift
+                _ => { // This entity should not be in the sorted list, so remove it.
+                    self.sorted.swap_remove(index);
                     if let Some(swapped) = self.sorted.get(index) {
                         self.indices.insert(*swapped, index);
                     }
@@ -142,17 +127,8 @@ impl<'a> System<'a> for TransformSystem {
             index += 1;
         }
 
-        self.dead.clear();
-        self.swapped.clear();
-
         (&mut locals).open().1.clear_flags();
         (&mut parents).open().1.clear_flags();
-
-
-        println!("after transforms: ");
-        for (entity, transform) in (&*entities, &globals).join() {
-            println!("{:?}: {:?}", entity, transform);
-        }
     }
 }
 

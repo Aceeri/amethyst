@@ -72,6 +72,7 @@ extern crate futures;
 extern crate gfx;
 extern crate hibitset;
 extern crate imagefmt;
+extern crate mint;
 extern crate rayon;
 extern crate rodio;
 extern crate serde;

@@ -3,7 +3,6 @@
 //! TODO: Remove redundant padding once `#[repr(align(...))]` stabilizes.
 
 use gfx;
-use cgmath::{Deg, Point3, Vector3};
 use specs::{Component, DenseVecStorage};
 
 use color::Rgba;
@@ -31,14 +30,14 @@ pub struct DirectionalLight {
     /// Color of the light in RGBA8 format.
     pub color: Rgba,
     /// Direction that the light is pointing.
-    pub direction: Vector3<f32>,
+    pub direction: ::mint::Vector3<f32>,
 }
 
 impl Default for DirectionalLight {
     fn default() -> Self {
         DirectionalLight {
             color: Rgba::default(),
-            direction: Vector3::new(-1.0, -1.0, -1.0),
+            direction: ::mint::Vector3 { x: -1.0, y: -1.0, z: -1.0 },
         }
     }
 }
@@ -73,7 +72,7 @@ impl From<DirectionalLight> for Light {
 #[derive(Clone, ConstantBuffer, Debug, Deserialize, PartialEq, Serialize)]
 pub struct PointLight {
     /// Location of the light source in three dimensional space.
-    pub center: Point3<f32>,
+    pub center: ::mint::Vector3<f32>,
     /// Color of the light in RGBA8 format.
     pub color: Rgba,
     /// Brightness of the light source, in lumens.
@@ -88,7 +87,7 @@ pub struct PointLight {
 impl Default for PointLight {
     fn default() -> Self {
         PointLight {
-            center: Point3::new(0.0, 0.0, 0.0),
+            center: ::mint::Vector3 { x: 0.0, y: 0.0, z: 0.0 },
             color: Rgba::default(),
             intensity: 10.0,
             radius: 10.0,
@@ -108,13 +107,13 @@ impl From<PointLight> for Light {
 #[derive(Clone, ConstantBuffer, Debug, Deserialize, PartialEq, Serialize)]
 pub struct SpotLight {
     /// Opening angle of the light cone.
-    pub angle: Deg<f32>,
+    pub angle: f32,
     /// Location of the light source in three dimensional space.
-    pub center: Point3<f32>,
+    pub center: ::mint::Vector3<f32>,
     /// Color of the light in RGBA8 format.
     pub color: Rgba,
     /// Direction that the light is pointing.
-    pub direction: Vector3<f32>,
+    pub direction: ::mint::Vector3<f32>,
     /// Brightness of the light source, in lumens.
     pub intensity: f32,
     /// Maximum radius of the point light's affected area.
@@ -127,10 +126,13 @@ pub struct SpotLight {
 impl Default for SpotLight {
     fn default() -> Self {
         SpotLight {
-            angle: Deg(60.0),
-            center: Point3::new(0.0, 1.0, 0.0),
+            //angle: Deg(60.0),
+            angle: 60.0,
+            //center: Point3::new(0.0, 1.0, 0.0),
+            center: ::mint::Vector3 { x: 0.0, y: 1.0, z: 0.0 },
             color: Rgba::default(),
-            direction: Vector3::new(0.0, -1.0, 0.0),
+            //direction: Vector3::new(0.0, -1.0, 0.0),
+            direction: ::mint::Vector3 { x: 0.0, y: -1.0, z: 0.0 },
             intensity: 10.0,
             radius: 10.0,
             smoothness: 4.0,
@@ -149,11 +151,13 @@ impl From<SpotLight> for Light {
 #[derive(Clone, ConstantBuffer, Debug, Deserialize, PartialEq, Serialize)]
 pub struct SunLight {
     /// The sun's angular radius.
-    pub ang_rad: Deg<f32>,
+    //pub ang_rad: Deg<f32>,
+    pub ang_rad: f32,
     /// Color of the light in RGBA8 format.
     pub color: Rgba,
     /// Direction that the light is pointing.
-    pub direction: Vector3<f32>,
+    //pub direction: Vector3<f32>,
+    pub direction: ::mint::Vector3<f32>,
     /// Brightness of the sun light, in lux.
     pub intensity: f32,
 }
@@ -161,9 +165,9 @@ pub struct SunLight {
 impl Default for SunLight {
     fn default() -> Self {
         SunLight {
-            ang_rad: Deg(0.0093),
+            ang_rad: 0.0093,
             color: Rgba::default(),
-            direction: Vector3::new(-1.0, -1.0, -1.0),
+            direction: ::mint::Vector3 { x: -1.0, y: -1.0, z: -1.0 },
             intensity: 64_000.0,
         }
     }

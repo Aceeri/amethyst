@@ -18,6 +18,7 @@ extern crate gfx_core;
 #[macro_use]
 extern crate gfx_macros;
 extern crate hetseq;
+extern crate mint;
 extern crate num_cpus;
 extern crate rayon;
 extern crate rayon_core;
