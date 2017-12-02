@@ -116,8 +116,16 @@ impl FrameLimiter {
 
     fn do_sleep(&self, stop_on_remaining: Duration) {
         let frame_duration = self.frame_duration - stop_on_remaining;
-        while Instant::now() - self.last_call < frame_duration {
-            sleep(self.zero)
+        let to_sleep = Instant::now() - self.last_call;
+        if to_sleep < frame_duration {
+            sleep(frame_duration - to_sleep);
         }
+        //let mut count = 0;
+        //while Instant::now() - self.last_call < frame_duration {
+            //sleep(self.zero);
+            //sleep(self.zero);
+            //count += 1;
+        //}
+        //println!("slept {} times", count);
     }
 }
